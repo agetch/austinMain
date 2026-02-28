@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Finn's Letter Adventure</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #fef9f0;
+    --sun: #FFD93D;
+    --coral: #FF6B6B;
+    --mint: #6BCB77;
+    --blue: #4D96FF;
+    --purple: #C77DFF;
+    --dark: #2d2d44;
+    --card: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: #dceeff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    background-image: radial-gradient(circle at 20% 20%, #c8e4ff 0%, transparent 50%),
+                      radial-gradient(circle at 80% 80%, #b8d8ff 0%, transparent 50%);
+  }
+
+  .back-link {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 800;
+    color: var(--blue);
+    text-decoration: none;
+    font-size: 1rem;
+    margin-bottom: 8px;
+    padding: 6px 14px;
+    border-radius: 50px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: transform 0.15s;
+  }
+  .back-link:hover { transform: translateX(-3px); }
+
+  h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2rem, 7vw, 3rem);
+    color: var(--coral);
+    text-align: center;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    text-shadow: 3px 3px 0 #ffd6d6;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    color: #444;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .score-bar {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    background: white;
+    border-radius: 50px;
+    padding: 8px 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    font-weight: 800;
+    color: var(--dark);
+    font-size: 1.1rem;
+  }
+
+  .star-count { color: var(--sun); font-size: 1.3rem; }
+
+  .game-card {
+    background: white;
+    border-radius: 28px;
+    padding: 28px 24px 24px;
+    max-width: 460px;
+    width: 100%;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .game-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--coral), var(--sun), var(--mint), var(--blue), var(--purple));
+    border-radius: 28px 28px 0 0;
+  }
+
+  .clue-section {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .parent-badge {
+    display: inline-block;
+    background: var(--coral);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
+  .clue-text {
+    font-size: clamp(1.1rem, 4vw, 1.4rem);
+    color: var(--dark);
+    font-weight: 800;
+    line-height: 1.4;
+    margin-bottom: 16px;
+  }
+
+  .word-emoji {
+    font-size: clamp(3.5rem, 15vw, 6rem);
+    display: block;
+    margin-bottom: 8px;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .letter-slots {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+
+  .slot {
+    width: clamp(44px, 11vw, 58px);
+    height: clamp(44px, 11vw, 58px);
+    border: 3px dashed #ccc;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(1.4rem, 5vw, 2rem);
+    color: var(--dark);
+    background: #fafafa;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .slot.filled {
+    border-color: var(--blue);
+    background: #e8f4ff;
+    border-style: solid;
+  }
+
+  .slot.correct {
+    border-color: var(--mint);
+    background: #e8fdf0;
+    animation: pop 0.3s ease;
+  }
+
+  .slot.wrong {
+    border-color: var(--coral);
+    background: #fff0f0;
+    animation: shake 0.4s ease;
+  }
+
+  @keyframes pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+
+  .letter-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .letter-btn {
+    width: clamp(46px, 12vw, 60px);
+    height: clamp(46px, 12vw, 60px);
+    border: none;
+    border-radius: 14px;
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(1.3rem, 5vw, 1.8rem);
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.15);
+    position: relative;
+    top: 0;
+    font-weight: 900;
+  }
+
+  .letter-btn:active {
+    top: 4px;
+    box-shadow: none;
+  }
+
+  .letter-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    top: 0;
+    box-shadow: none;
+  }
+
+  .letter-btn:nth-child(4n+1) { background: #FFE5E5; color: #c0392b; }
+  .letter-btn:nth-child(4n+2) { background: #E5F5FF; color: #2980b9; }
+  .letter-btn:nth-child(4n+3) { background: #E5FFE9; color: #27ae60; }
+  .letter-btn:nth-child(4n+4) { background: #F5E5FF; color: #8e44ad; }
+
+  .letter-btn:not(:disabled):hover {
+    transform: translateY(-3px) scale(1.08);
+    box-shadow: 0 6px 0 rgba(0,0,0,0.15);
+    top: -3px;
+  }
+
+  .action-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 50px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.15);
+  }
+
+  .btn:active { transform: translateY(4px); box-shadow: none; }
+
+  .btn-erase {
+    background: #fff3cd;
+    color: #856404;
+  }
+
+  .btn-next {
+    background: var(--mint);
+    color: white;
+    display: none;
+  }
+
+  .btn-next.visible { display: block; }
+
+  .progress-dots {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  .dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: #ddd;
+    transition: background 0.3s;
+  }
+  .dot.done { background: var(--mint); }
+  .dot.active { background: var(--blue); transform: scale(1.3); }
+
+  /* Celebration overlay */
+  .celebrate {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .celebrate.show {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .celebrate-box {
+    background: white;
+    border-radius: 32px;
+    padding: 40px 32px;
+    text-align: center;
+    max-width: 360px;
+    width: 90%;
+    animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  @keyframes bounceIn {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .celebrate-emoji { font-size: 5rem; display: block; margin-bottom: 12px; }
+  .celebrate-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.2rem;
+    color: var(--coral);
+    margin-bottom: 8px;
+  }
+  .celebrate-msg { color: #666; font-size: 1rem; margin-bottom: 24px; }
+  .confetti { position: fixed; inset: 0; pointer-events: none; z-index: 99; }
+
+  .hint-text {
+    font-size: 0.85rem;
+    color: #aaa;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  .btn-reset {
+    background: #f0f0f0;
+    color: #555;
+    font-size: 0.85rem;
+    padding: 8px 18px;
+    margin-top: 12px;
+  }
+
+  .finish-screen {
+    display: none;
+    text-align: center;
+    padding: 20px 0;
+  }
+  .finish-screen.show { display: block; }
+  .finish-emoji { font-size: 5rem; }
+  .finish-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.5rem;
+    color: var(--coral);
+    margin: 12px 0 8px;
+  }
+  .finish-msg { color: #555; font-size: 1.1rem; margin-bottom: 24px; }
+  .btn-restart { background: var(--coral); color: white; font-size: 1.1rem; padding: 14px 32px; }
+</style>
+</head>
+<body>
+
+<a href="/" class="back-link">&#8592; All Games</a>
+
+<h1>Finn's Letter Adventure</h1>
+<p class="subtitle">Spell the word together!</p>
+
+<div class="score-bar">
+  <span class="star-count">&#11088;</span>
+  <span id="score">0</span> stars
+  <button class="btn btn-reset" onclick="restart()" style="margin-left:12px">&#128260; Full Reset</button>
+</div>
+
+<div class="game-card">
+  <div class="progress-dots" id="progressDots"></div>
+
+  <!-- Main game UI -->
+  <div id="gameUI">
+    <div class="clue-section">
+      <span class="parent-badge">&#128214; Parent reads aloud</span>
+      <div class="word-emoji" id="wordEmoji"></div>
+      <div class="clue-text" id="clueText"></div>
+    </div>
+
+    <p class="hint-text">&#128070; Tap the letters in order!</p>
+
+    <div class="letter-slots" id="letterSlots"></div>
+    <div class="letter-buttons" id="letterButtons"></div>
+
+    <div class="action-row">
+      <button class="btn btn-erase" onclick="erase()">&#11013; Erase</button>
+      <button class="btn btn-next" id="nextBtn" onclick="nextWord()">Next Word &#10145;</button>
+    </div>
+  </div>
+
+  <!-- Finish screen -->
+  <div class="finish-screen" id="finishScreen">
+    <div class="finish-emoji">&#127881;&#127942;&#127881;</div>
+    <div class="finish-title">Amazing!</div>
+    <div class="finish-msg">You spelled all the words! Great teamwork!</div>
+    <button class="btn btn-restart" onclick="restart()">Play Again &#128260;</button>
+  </div>
+</div>
+
+<!-- Celebration overlay -->
+<div class="celebrate" id="celebrate">
+  <canvas class="confetti" id="confettiCanvas"></canvas>
+  <div class="celebrate-box">
+    <span class="celebrate-emoji" id="celebrateEmoji"></span>
+    <div class="celebrate-title" id="celebrateTitle"></div>
+    <div class="celebrate-msg" id="celebrateMsg"></div>
+    <button class="btn" style="background:var(--blue);color:white" onclick="closeCelebrate()">Keep Going! &#128640;</button>
+  </div>
+</div>
+
+<script>
+const WORDS = [
+  { word: "CAT",  emoji: "\u{1F431}", clue: "This fluffy pet says meow! What animal is it?" },
+  { word: "DOG",  emoji: "\u{1F436}", clue: "Man's best friend. It wags its tail and barks. What is it?" },
+  { word: "SUN",  emoji: "\u2600\uFE0F", clue: "It shines bright in the sky during the day and keeps us warm!" },
+  { word: "HAT",  emoji: "\u{1F3A9}", clue: "You wear this on your head to keep the rain or sun away!" },
+  { word: "BUS",  emoji: "\u{1F68C}", clue: "A big yellow vehicle that takes kids to school every day!" },
+  { word: "CUP",  emoji: "\u{1F964}", clue: "You drink your juice or milk from this. What is it?" },
+  { word: "BEE",  emoji: "\u{1F41D}", clue: "A buzzing yellow and black insect that makes honey!" },
+  { word: "MAP",  emoji: "\u{1F5FA}\uFE0F", clue: "You use this to find your way and see where places are!" },
+  { word: "HEN",  emoji: "\u{1F414}", clue: "This farm bird clucks and lays eggs for us to eat!" },
+  { word: "FOX",  emoji: "\u{1F98A}", clue: "An orange wild animal with a bushy tail that's very clever!" },
+];
+
+let shuffled = [];
+let current = 0;
+let score = 0;
+let typed = [];
+let solved = false;
+
+function shuffle(arr) {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+function restart() {
+  shuffled = shuffle(WORDS);
+  current = 0;
+  score = 0;
+  typed = [];
+  solved = false;
+  document.getElementById('score').textContent = score;
+  document.getElementById('finishScreen').classList.remove('show');
+  document.getElementById('gameUI').style.display = 'block';
+  buildProgressDots();
+  loadWord();
+}
+
+function buildProgressDots() {
+  const dots = document.getElementById('progressDots');
+  dots.innerHTML = shuffled.map((_, i) =>
+    `<div class="dot ${i === 0 ? 'active' : ''}" id="dot${i}"></div>`
+  ).join('');
+}
+
+function loadWord() {
+  solved = false;
+  typed = [];
+  const data = shuffled[current];
+  document.getElementById('wordEmoji').textContent = data.emoji;
+  document.getElementById('clueText').textContent = data.clue;
+  document.getElementById('nextBtn').classList.remove('visible');
+
+  // Update dots
+  shuffled.forEach((_, i) => {
+    const dot = document.getElementById(`dot${i}`);
+    if (dot) {
+      dot.className = 'dot' + (i < current ? ' done' : i === current ? ' active' : '');
+    }
+  });
+
+  buildSlots(data.word);
+  buildLetters(data.word);
+}
+
+function buildSlots(word) {
+  const slots = document.getElementById('letterSlots');
+  slots.innerHTML = word.split('').map((_, i) =>
+    `<div class="slot" id="slot${i}"></div>`
+  ).join('');
+}
+
+function buildLetters(word) {
+  const distractors = 'ABCDEFGHIJKLMNOPRSTW'.split('').filter(l => !word.includes(l));
+  const extras = shuffle(distractors).slice(0, Math.min(3, 8 - word.length));
+  const pool = shuffle([...word.split(''), ...extras]);
+
+  const container = document.getElementById('letterButtons');
+  container.innerHTML = pool.map(letter =>
+    `<button class="letter-btn" onclick="typeLetter('${letter}', this)">${letter}</button>`
+  ).join('');
+}
+
+function typeLetter(letter, btn) {
+  if (solved) return;
+  const word = shuffled[current].word;
+  const pos = typed.length;
+
+  if (pos >= word.length) return;
+
+  typed.push(letter);
+  const slot = document.getElementById(`slot${pos}`);
+
+  if (letter === word[pos]) {
+    slot.textContent = letter;
+    slot.classList.add('filled', 'correct');
+    btn.disabled = true;
+
+    if (typed.length === word.length) {
+      solved = true;
+      score += 10;
+      document.getElementById('score').textContent = score;
+      setTimeout(() => showCelebrate(), 400);
+    }
+  } else {
+    slot.classList.add('wrong');
+    setTimeout(() => slot.classList.remove('wrong'), 500);
+    typed.pop();
+    btn.style.background = '#ffe0e0';
+    setTimeout(() => btn.style.background = '', 400);
+  }
+}
+
+function erase() {
+  if (solved || typed.length === 0) return;
+  const pos = typed.length - 1;
+  typed.pop();
+  const slot = document.getElementById(`slot${pos}`);
+  slot.textContent = '';
+  slot.classList.remove('filled', 'correct');
+
+  const word = shuffled[current].word;
+  const letter = word[pos];
+  const btns = document.querySelectorAll('.letter-btn');
+  for (let btn of btns) {
+    if (btn.textContent === letter && btn.disabled) {
+      btn.disabled = false;
+      break;
+    }
+  }
+}
+
+const celebrations = [
+  { emoji: '\u{1F31F}', title: 'Amazing!', msg: 'You spelled it perfectly!' },
+  { emoji: '\u{1F389}', title: 'Woohoo!', msg: 'Great teamwork!' },
+  { emoji: '\u{1F984}', title: 'Magical!', msg: 'You\'re a spelling superstar!' },
+  { emoji: '\u{1F3C6}', title: 'Champion!', msg: 'That\'s exactly right!' },
+  { emoji: '\u{1F680}', title: 'Blast off!', msg: 'Out of this world spelling!' },
+];
+
+function showCelebrate() {
+  const c = celebrations[Math.floor(Math.random() * celebrations.length)];
+  document.getElementById('celebrateEmoji').textContent = c.emoji;
+  document.getElementById('celebrateTitle').textContent = c.title;
+  document.getElementById('celebrateMsg').textContent = c.msg;
+  document.getElementById('celebrate').classList.add('show');
+  startConfetti();
+}
+
+function closeCelebrate() {
+  document.getElementById('celebrate').classList.remove('show');
+  stopConfetti();
+  document.getElementById('nextBtn').classList.add('visible');
+}
+
+function nextWord() {
+  current++;
+  if (current >= shuffled.length) {
+    document.getElementById('gameUI').style.display = 'none';
+    document.getElementById('finishScreen').classList.add('show');
+  } else {
+    loadWord();
+  }
+}
+
+// Simple confetti
+let confettiAnim;
+let particles = [];
+
+function startConfetti() {
+  const canvas = document.getElementById('confettiCanvas');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  const colors = ['#FFD93D','#FF6B6B','#6BCB77','#4D96FF','#C77DFF'];
+
+  particles = Array.from({length: 80}, () => ({
+    x: Math.random() * canvas.width,
+    y: -20,
+    r: 6 + Math.random() * 8,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    speed: 3 + Math.random() * 4,
+    drift: (Math.random() - 0.5) * 3,
+    rot: Math.random() * 360,
+    spin: (Math.random() - 0.5) * 8,
+  }));
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot * Math.PI / 180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r);
+      ctx.restore();
+      p.y += p.speed;
+      p.x += p.drift;
+      p.rot += p.spin;
+    });
+    confettiAnim = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function stopConfetti() {
+  cancelAnimationFrame(confettiAnim);
+  const canvas = document.getElementById('confettiCanvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+// Start!
+restart();
+</script>
+</body>
+</html>
