@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finn's Animal Explorer!</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #fef9f0;
+    --sun: #FFD93D;
+    --coral: #FF6B6B;
+    --mint: #6BCB77;
+    --blue: #4D96FF;
+    --purple: #C77DFF;
+    --dark: #2d2d44;
+  }
+
+* { box-sizing:border-box; margin:0; padding:0; }
+html,body { width:100%; height:100%; overflow:hidden; background:#1a1a2e; font-family:'Nunito',sans-serif; }
+
+/* BACK LINK */
+.back-link {
+  position: fixed;
+  top: 70px;
+  left: 14px;
+  z-index: 300;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 800;
+  color: var(--blue);
+  text-decoration: none;
+  font-size: 0.95rem;
+  padding: 6px 14px;
+  border-radius: 50px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  transition: transform 0.15s;
+  font-family: 'Nunito', sans-serif;
+}
+.back-link:hover { transform: translateX(-3px); }
+
+/* WELCOME */
+#welcome {
+  position:fixed; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  background: #dceeff;
+  background-image: radial-gradient(circle at 20% 20%, #c8e4ff 0%, transparent 50%),
+                    radial-gradient(circle at 80% 80%, #b8d8ff 0%, transparent 50%);
+  z-index:1000; text-align:center; padding:20px;
+}
+.welcome-stars { display:none; }
+.welcome-title { font-family:'Fredoka One',cursive; font-size:clamp(32px,8vw,56px); color:var(--coral); text-shadow:3px 3px 0 #ffd6d6; animation:floatY 2s ease-in-out infinite alternate; line-height:1.1; margin-bottom:6px; }
+.welcome-sub { font-size:clamp(13px,3.5vw,17px); color:#555; font-weight:800; margin-bottom:24px; }
+.loc-list { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:28px; }
+.loc-pill { background:white; border:2px solid rgba(77,150,255,.3); border-radius:50px; padding:7px 16px; color:#444; font-size:clamp(11px,3vw,14px); font-weight:800; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+.btn-go { background:linear-gradient(135deg,var(--mint),#4cbb5c); color:white; border:none; border-radius:60px; padding:16px 52px; font-family:'Fredoka One',cursive; font-size:clamp(20px,5vw,28px); cursor:pointer; box-shadow:0 6px 0 #389944,0 8px 20px rgba(107,203,119,.45); transition:all .15s; letter-spacing:1px; }
+.btn-go:hover { transform:translateY(-3px); box-shadow:0 9px 0 #389944,0 12px 26px rgba(107,203,119,.5); }
+.btn-go:active { transform:translateY(4px); box-shadow:0 2px 0 #389944; }
+
+/* TRAVEL */
+#travel { position:fixed; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center; z-index:900; overflow:hidden; }
+.travel-bg { position:absolute; inset:0; background:linear-gradient(180deg,#87CEEB 0%,#b0e2ff 55%,#7bc97b 55%,#4a9a4a 100%); }
+.travel-cloud { position:absolute; font-size:55px; opacity:.8; animation:cloudDrift 4s linear infinite; }
+@keyframes cloudDrift { from{transform:translateX(110vw)} to{transform:translateX(-30vw)} }
+.travel-plane { position:relative; z-index:2; font-size:80px; animation:planeFly 2.2s ease-in-out forwards; }
+@keyframes planeFly { 0%{transform:translateX(-60vw) translateY(15px) rotate(-5deg);opacity:0} 30%{opacity:1} 100%{transform:translateX(65vw) translateY(-15px) rotate(5deg);opacity:0} }
+.travel-dest { position:relative; z-index:2; font-family:'Fredoka One',cursive; font-size:clamp(24px,6vw,44px); color:white; text-shadow:3px 3px 0 rgba(0,0,0,.3); margin-top:20px; background:rgba(0,0,0,.22); padding:10px 30px; border-radius:50px; }
+
+/* HUD */
+#hud { position:fixed; top:0; left:0; right:0; height:60px; background:rgba(16,24,40,.93); backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:space-between; padding:0 14px; z-index:200; border-bottom:3px solid rgba(255,215,0,.35); }
+.hud-loc { font-family:'Fredoka One',cursive; font-size:clamp(13px,4vw,20px); color:#FFD700; }
+.hud-dots { display:flex; gap:6px; }
+.hud-dot { width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,.12); border:2px solid rgba(255,255,255,.25); display:flex; align-items:center; justify-content:center; font-size:17px; transition:all .35s; }
+.hud-dot.found { background:rgba(76,175,80,.35); border-color:#4CAF50; box-shadow:0 0 10px rgba(76,175,80,.5); }
+.scroll-hint { color:rgba(255,255,255,.55); font-size:12px; font-weight:800; animation:pulse 1.4s ease-in-out infinite alternate; }
+@keyframes pulse { from{opacity:.4} to{opacity:1} }
+
+/* SCENE */
+#scene-wrapper { position:fixed; top:60px; left:0; right:0; bottom:0; overflow:hidden; cursor:grab; user-select:none; display:none; }
+#scene-wrapper:active { cursor:grabbing; }
+#scene { position:absolute; top:0; left:0; height:100%; will-change:transform; }
+.loc-scene { position:absolute; top:0; left:0; height:100%; }
+
+/* sky canvas sits behind everything */
+.sky-canvas { position:absolute; top:0; left:0; }
+
+/* terrain canvas */
+.terrain-canvas { position:absolute; bottom:0; left:0; }
+
+/* props and animals are absolute within loc-scene */
+.prop { position:absolute; pointer-events:none; user-select:none; line-height:1; }
+.scene-animal { position:absolute; cursor:pointer; line-height:1; filter:drop-shadow(2px 4px 6px rgba(0,0,0,.3)); z-index:10; transition:transform .2s; animation:aniBob 3s ease-in-out infinite alternate; user-select:none; }
+@keyframes aniBob { from{transform:translateY(0)} to{transform:translateY(-10px)} }
+.scene-animal:hover { transform:scale(1.18) translateY(-6px) !important; filter:drop-shadow(3px 6px 12px rgba(0,0,0,.4)) brightness(1.1); }
+.scene-animal.found { animation:none; filter:drop-shadow(0 0 14px gold) brightness(1.2); cursor:default; pointer-events:none; }
+.scene-animal.found::after { content:'✅'; position:absolute; top:-14px; right:-14px; font-size:22px; line-height:1; }
+
+/* SPELLING */
+#spell-overlay { position:fixed; inset:0; background:rgba(0,0,0,.68); z-index:500; display:none; align-items:center; justify-content:center; padding:16px; }
+.spell-box { background:linear-gradient(155deg,#FFF9F0,#fff); border-radius:28px; padding:clamp(18px,4vw,34px); max-width:540px; width:100%; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 0 4px #FFD700,0 0 0 8px #FF6B35; animation:boxPop .3s cubic-bezier(.34,1.56,.64,1); }
+@keyframes boxPop { from{transform:scale(.5);opacity:0} to{transform:scale(1);opacity:1} }
+.sp-emoji { font-size:clamp(58px,14vw,88px); display:block; margin-bottom:6px; animation:floatY 2s ease-in-out infinite alternate; }
+.sp-prompt { font-family:'Fredoka One',cursive; font-size:clamp(15px,4vw,22px); color:#666; margin-bottom:18px; }
+.letter-tiles { display:flex; justify-content:center; gap:5px; flex-wrap:wrap; margin-bottom:18px; min-height:58px; }
+.tile { width:clamp(34px,8.5vw,52px); height:clamp(42px,10vw,58px); border-radius:10px; border:3px solid #ddd; background:white; display:flex; align-items:center; justify-content:center; font-family:'Fredoka One',cursive; font-size:clamp(17px,5vw,27px); color:#333; box-shadow:0 4px 0 #ccc; transition:all .12s; }
+.tile.correct { border-color:#4CAF50; background:#E8F5E9; box-shadow:0 4px 0 #2E7D32; color:#2E7D32; animation:tilePop .4s ease; }
+.tile.wrong   { border-color:#f44336; background:#FFEBEE; box-shadow:0 4px 0 #b71c1c; color:#f44336; animation:tileShake .35s ease; }
+.tile.pending { border-color:#FFB300; background:#FFF8E1; box-shadow:0 4px 0 #FF8F00; color:#E65100; }
+@keyframes tilePop   { 0%{transform:scale(1)} 50%{transform:scale(1.3) rotate(5deg)} 100%{transform:scale(1)} }
+@keyframes tileShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+.keyboard { display:flex; flex-wrap:wrap; gap:4px; justify-content:center; max-width:400px; margin:0 auto 14px; }
+.key { width:clamp(30px,7.5vw,42px); height:clamp(34px,8.5vw,46px); border-radius:8px; border:2px solid #ccc; background:white; font-family:'Fredoka One',cursive; font-size:clamp(13px,3.5vw,18px); cursor:pointer; color:#333; box-shadow:0 3px 0 #ccc; transition:all .1s; display:flex; align-items:center; justify-content:center; }
+.key:hover { background:#FFF3E0; border-color:#FF6B35; transform:translateY(-2px); box-shadow:0 5px 0 #FF6B35; }
+.key:active { transform:translateY(2px); box-shadow:0 1px 0 #ccc; }
+.key.del-key { width:clamp(42px,10vw,60px); background:#FFF3E0; border-color:#FF9800; color:#FF6B35; font-size:clamp(10px,2.5vw,13px); }
+.key.ok-correct { background:#E8F5E9; border-color:#4CAF50; color:#4CAF50; pointer-events:none; opacity:.75; }
+.key.ok-pending { background:#FFF8E1; border-color:#FFB300; color:#E65100; box-shadow:0 3px 0 #FF8F00; }
+.key.ok-wrong   { background:#FFEBEE; border-color:#f44336; color:#f44336; opacity:.9; }
+.sp-success { font-family:'Fredoka One',cursive; font-size:clamp(20px,5vw,30px); color:#4CAF50; display:none; animation:floatY .6s ease; }
+.hint-line { font-size:clamp(11px,2.5vw,13px); color:#aaa; font-weight:800; margin-top:6px; }
+.hint-line button { background:none; border:none; color:#FF9800; cursor:pointer; font-weight:800; font-size:inherit; font-family:'Nunito',sans-serif; text-decoration:underline; }
+
+/* WIN */
+#win-screen { position:fixed; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center; background:linear-gradient(160deg,#0f2027,#203a43,#2c5364); z-index:800; padding:20px; text-align:center; }
+.confetti-layer { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+.cf { position:absolute; top:-30px; font-size:22px; animation:cfFall linear forwards; }
+@keyframes cfFall { to{transform:translateY(110vh) rotate(720deg);opacity:0} }
+.win-trophy { font-size:clamp(60px,16vw,100px); animation:floatY 2s ease-in-out infinite alternate; }
+.win-title { font-family:'Fredoka One',cursive; font-size:clamp(32px,8vw,58px); color:#FFD700; text-shadow:4px 4px 0 #FF6B35; margin:8px 0 4px; }
+.win-sub   { color:#aaa; font-size:clamp(13px,3.5vw,18px); font-weight:800; margin-bottom:22px; }
+.win-animals { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:26px; max-width:480px; }
+.win-badge { background:rgba(255,255,255,.1); border:2px solid rgba(255,215,0,.35); border-radius:14px; padding:8px 14px; font-weight:800; color:white; font-size:clamp(11px,2.8vw,14px); animation:popIn .4s cubic-bezier(.34,1.56,.64,1) backwards; }
+.win-badge span { display:block; font-size:26px; margin-bottom:3px; }
+.btn-again { background:linear-gradient(135deg,#FF6B35,#FF9800); color:white; border:none; border-radius:60px; padding:14px 44px; font-family:'Fredoka One',cursive; font-size:clamp(18px,5vw,26px); cursor:pointer; box-shadow:0 7px 0 #b84300; transition:all .15s; }
+.btn-again:hover { transform:translateY(-3px); box-shadow:0 10px 0 #b84300; }
+.btn-again:active { transform:translateY(4px); box-shadow:0 3px 0 #b84300; }
+
+@keyframes floatY { from{transform:translateY(0)} to{transform:translateY(-10px)} }
+@keyframes popIn  { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+</style>
+</head>
+<body>
+
+<div id="welcome">
+  <div class="welcome-stars"></div>
+  <a href="index.html" style="position:absolute;top:16px;left:16px;display:inline-flex;align-items:center;gap:6px;font-weight:800;color:var(--blue);text-decoration:none;font-size:0.95rem;padding:6px 14px;border-radius:50px;background:white;box-shadow:0 2px 8px rgba(0,0,0,0.1);font-family:'Nunito',sans-serif;">&#8592; All Games</a>
+  <div class="welcome-title">🌍 Finn's Animal Explorer!</div>
+  <div class="welcome-sub">Pan the scene · Tap an animal · Spell its name!</div>
+  <div class="loc-list">
+    <div class="loc-pill">🌅 Africa</div>
+    <div class="loc-pill">❄️ Arctic</div>
+    <div class="loc-pill">🌊 Ocean</div>
+    <div class="loc-pill">🌿 Rainforest</div>
+    <div class="loc-pill">🏔️ Mountains</div>
+  </div>
+  <button class="btn-go" onclick="startGame()">Let's Explore! ✈️</button>
+</div>
+
+<div id="travel">
+  <div class="travel-bg"></div>
+  <div class="travel-cloud" style="top:12%;animation-delay:0s;animation-duration:5s;">☁️</div>
+  <div class="travel-cloud" style="top:30%;animation-delay:.9s;animation-duration:4.2s;">☁️</div>
+  <div class="travel-cloud" style="top:18%;animation-delay:1.6s;animation-duration:6s;">☁️</div>
+  <div class="travel-plane">✈️</div>
+  <div class="travel-dest" id="travel-dest">Africa 🌅</div>
+</div>
+
+<a href="index.html" class="back-link" id="back-link" style="display:none;">&#8592; All Games</a>
+<div id="hud" style="display:none;">
+  <div class="hud-loc" id="hud-loc">📍 Africa</div>
+  <div class="hud-dots" id="hud-dots"></div>
+  <div class="scroll-hint" id="scroll-hint">👉 Drag to explore</div>
+</div>
+
+<div id="scene-wrapper">
+  <div id="scene"></div>
+</div>
+
+<div id="spell-overlay">
+  <div class="spell-box">
+    <span class="sp-emoji" id="sp-emoji">🦁</span>
+    <div class="sp-prompt">What animal is this? Spell it out!</div>
+    <div class="letter-tiles" id="letter-tiles"></div>
+    <div class="keyboard" id="keyboard"></div>
+    <div class="sp-success" id="sp-success">🎉 You spelled it! 🎉</div>
+    <div class="hint-line">Stuck? <button onclick="revealHint()">💡 Show a hint</button></div>
+  </div>
+</div>
+
+<div id="win-screen">
+  <div class="confetti-layer" id="confetti-layer"></div>
+  <div class="win-trophy">🏆</div>
+  <div class="win-title">Amazing Explorer!</div>
+  <div class="win-sub">You found & spelled all 15 animals! 🌍</div>
+  <div class="win-animals" id="win-animals"></div>
+  <button class="btn-again" onclick="location.reload()">Play Again! 🔄</button>
+</div>
+
+<script>
+// ============================================================
+// TERRAIN HELPERS
+// ============================================================
+
+// Given an array of [x, y] control points, linearly interpolate height at any x
+function terrainHeightAt(points, x) {
+  if (x <= points[0][0]) return points[0][1];
+  if (x >= points[points.length-1][0]) return points[points.length-1][1];
+  for (let i = 0; i < points.length - 1; i++) {
+    const [x0,y0] = points[i], [x1,y1] = points[i+1];
+    if (x >= x0 && x <= x1) {
+      const t = (x - x0) / (x1 - x0);
+      // smooth cubic interpolation (ease in/out)
+      const s = t * t * (3 - 2 * t);
+      return y0 + s * (y1 - y0);
+    }
+  }
+  return points[points.length-1][1];
+}
+
+// Build a smooth SVG polygon path string from terrain points
+// points: [[x,y]...], canvasH: total canvas height
+// The polygon fills from terrain line down to bottom
+function buildTerrainPath(points, canvasH, sceneW) {
+  let d = `M ${points[0][0]} ${points[0][1]}`;
+  for (let i = 1; i < points.length; i++) {
+    const [x0,y0] = points[i-1], [x1,y1] = points[i];
+    const cpx = (x0 + x1) / 2;
+    d += ` C ${cpx} ${y0}, ${cpx} ${y1}, ${x1} ${y1}`;
+  }
+  d += ` L ${sceneW} ${canvasH} L 0 ${canvasH} Z`;
+  return d;
+}
+
+// ============================================================
+// LOCATION DATA
+// Each location defines:
+//   terrain: [[x, yFromTop]...] control points  (y=0 is top of scene)
+//   terrainColors: [fill, stroke] for the land
+//   sky: gradient stops
+//   animals: [{emoji, name, x (scene x), yOffset (px above terrain)}]
+//   props: [{e, x, yOffset, size}]  yOffset above terrain surface
+// ============================================================
+
+const SCENE_H = () => window.innerHeight - 60; // viewport height minus HUD
+
+const LOCATIONS = [
+  // ── AFRICA ───────────────────────────────────────────────
+  {
+    name: "Africa 🌅",
+    sceneWidth: 2800,
+    sky: { top:"#FFCC02", mid:"#FF6B00", bot:"#C84B00" },
+    // Gently rolling savanna with a low hill and a river valley
+    terrain: [
+      [0,    0.72], [200,  0.70], [400,  0.65], [600,  0.60],
+      [750,  0.55], [900,  0.58], [1100, 0.62], [1300, 0.68],
+      [1500, 0.72], [1700, 0.68], [1900, 0.64], [2100, 0.60],
+      [2300, 0.63], [2500, 0.67], [2800, 0.70],
+    ],
+    terrainFill:   "#C4873A",
+    terrainStroke: "#A0522D",
+    terrainFill2:  "#8B4513", // deeper layer
+    animals: [
+      { emoji:"🦁", name:"lion",     x:380,  yOff:10 },
+      { emoji:"🦒", name:"giraffe",  x:1000, yOff:10 },
+      { emoji:"🐘", name:"elephant", x:1900, yOff:10 },
+    ],
+    props: [
+      { e:"🌵", x:160,  yOff:6,  s:"52px" },
+      { e:"🌴", x:600,  yOff:4,  s:"68px" },
+      { e:"🌳", x:1200, yOff:4,  s:"62px" },
+      { e:"🌵", x:1500, yOff:6,  s:"46px" },
+      { e:"🌴", x:2050, yOff:4,  s:"72px" },
+      { e:"🌵", x:2450, yOff:6,  s:"50px" },
+      { e:"☀️", x:2650, sky:80,  s:"62px" },
+      { e:"🏜️", x:800,  sky:200, s:"80px" },
+      { e:"🏜️", x:1700, sky:200, s:"80px" },
+    ],
+  },
+
+  // ── ARCTIC ───────────────────────────────────────────────
+  {
+    name: "The Arctic ❄️",
+    sceneWidth: 2800,
+    sky: { top:"#B3E5FC", mid:"#E1F5FE", bot:"#ffffff" },
+    // Ice shelf with pressure ridges and a deep crevasse
+    terrain: [
+      [0,    0.68], [150,  0.66], [300,  0.60], [420,  0.56],
+      [500,  0.60], [600,  0.65], [700,  0.80], [750,  0.82], // crevasse dip
+      [800,  0.66], [950,  0.62], [1100, 0.58], [1250, 0.55],
+      [1380, 0.58], [1500, 0.62], [1650, 0.70], [1750, 0.75], // ridge
+      [1850, 0.66], [2000, 0.60], [2150, 0.56], [2300, 0.60],
+      [2500, 0.65], [2650, 0.68], [2800, 0.70],
+    ],
+    terrainFill:   "#d8eef9",
+    terrainStroke: "#a8d4ee",
+    terrainFill2:  "#b0cfe8",
+    animals: [
+      { emoji:"🐻‍❄️", name:"polar bear", x:320,  yOff:10 },
+      { emoji:"🦭",   name:"seal",        x:1080, yOff:10 },
+      { emoji:"🦊",   name:"arctic fox",  x:2020, yOff:10 },
+    ],
+    props: [
+      { e:"🌨️", x:80,   sky:55,  s:"50px" },
+      { e:"❄️",  x:500,  sky:48,  s:"42px" },
+      { e:"🌨️", x:1100, sky:75,  s:"46px" },
+      { e:"❄️",  x:1620, sky:58,  s:"50px" },
+      { e:"🌨️", x:2200, sky:48,  s:"40px" },
+      { e:"🧊",  x:400,  yOff:2,  s:"56px" },
+      { e:"🧊",  x:750,  yOff:2,  s:"46px" },
+      { e:"🧊",  x:1420, yOff:2,  s:"50px" },
+      { e:"⛄",  x:1700, yOff:4,  s:"56px" },
+      { e:"🧊",  x:2150, yOff:2,  s:"62px" },
+    ],
+  },
+
+  // ── OCEAN ────────────────────────────────────────────────
+  {
+    name: "The Ocean 🌊",
+    sceneWidth: 2800,
+    sky: { top:"#0277BD", mid:"#0097A7", bot:"#00695C" },
+    // Underwater seabed: coral shelves, trenches, seamount
+    terrain: [
+      [0,    0.60], [200,  0.65], [350,  0.72], [450,  0.80], // shelf drop
+      [550,  0.85], [650,  0.82], [800,  0.75], [950,  0.68],
+      [1100, 0.55], [1200, 0.48], [1300, 0.52], // seamount peak
+      [1450, 0.62], [1600, 0.72], [1700, 0.80], [1800, 0.85], // trench
+      [1900, 0.78], [2050, 0.70], [2200, 0.65], [2400, 0.60],
+      [2600, 0.58], [2800, 0.62],
+    ],
+    terrainFill:   "#00695C",
+    terrainStroke: "#004D40",
+    terrainFill2:  "#003d32",
+    animals: [
+      { emoji:"🐬", name:"dolphin",  x:300,  yOff:30 },  // swimming above
+      { emoji:"🦈", name:"shark",    x:1050, yOff:35 },
+      { emoji:"🐙", name:"octopus",  x:1900, yOff:10 },
+    ],
+    props: [
+      { e:"🌊", x:0,    sky:10, s:"90px" },
+      { e:"🌊", x:600,  sky:10, s:"80px" },
+      { e:"🌊", x:1200, sky:10, s:"95px" },
+      { e:"🌊", x:1900, sky:10, s:"85px" },
+      { e:"🌊", x:2500, sky:10, s:"90px" },
+      { e:"🪸", x:80,   yOff:2, s:"52px" },
+      { e:"🐠", x:600,  yOff:2, s:"36px" },
+      { e:"🐡", x:1280, yOff:2, s:"36px" },
+      { e:"🪸", x:1750, yOff:2, s:"55px" },
+      { e:"🐟", x:2050, yOff:2, s:"36px" },
+      { e:"⭐", x:2400, yOff:2, s:"32px" },
+      { e:"🪸", x:2600, yOff:2, s:"50px" },
+    ],
+  },
+
+  // ── RAINFOREST ───────────────────────────────────────────
+  {
+    name: "Rainforest 🌿",
+    sceneWidth: 2800,
+    sky: { top:"#1a4a1c", mid:"#2d6e30", bot:"#1B5E20" },
+    // Hilly jungle floor with roots and a raised plateau
+    terrain: [
+      [0,    0.72], [200,  0.70], [400,  0.66], [550,  0.60],
+      [680,  0.56], [800,  0.60], [950,  0.64], [1100, 0.58],
+      [1200, 0.52], [1350, 0.50], [1500, 0.54], // plateau
+      [1600, 0.60], [1750, 0.65], [1900, 0.70], [2050, 0.66],
+      [2200, 0.62], [2400, 0.68], [2600, 0.72], [2800, 0.74],
+    ],
+    terrainFill:   "#2E7D32",
+    terrainStroke: "#1B5E20",
+    terrainFill2:  "#145214",
+    animals: [
+      { emoji:"🦜", name:"parrot",    x:420,  yOff:40 }, // perched on slope
+      { emoji:"🐸", name:"frog",      x:1100, yOff:10 },
+      { emoji:"🦋", name:"butterfly", x:1980, yOff:50 }, // flying above
+    ],
+    props: [
+      { e:"🌳", x:80,   yOff:4, s:"105px" },
+      { e:"🌴", x:560,  yOff:4, s:"92px"  },
+      { e:"🌳", x:1000, yOff:4, s:"115px" },
+      { e:"🌴", x:1550, yOff:4, s:"98px"  },
+      { e:"🌳", x:2100, yOff:4, s:"108px" },
+      { e:"🌿", x:300,  yOff:2, s:"60px"  },
+      { e:"🌿", x:850,  yOff:2, s:"55px"  },
+      { e:"🌿", x:1400, yOff:2, s:"60px"  },
+      { e:"🌿", x:2300, yOff:2, s:"55px"  },
+      { e:"🍃", x:700,  sky:70, s:"52px"  },
+      { e:"🍃", x:1600, sky:65, s:"56px"  },
+    ],
+  },
+
+  // ── MOUNTAINS ────────────────────────────────────────────
+  {
+    name: "Mountains 🏔️",
+    sceneWidth: 2800,
+    sky: { top:"#90CAF9", mid:"#78909C", bot:"#546E7A" },
+    // Dramatic jagged peaks, deep valley, cliff face
+    terrain: [
+      [0,    0.80], [150,  0.75], [280,  0.65], [380,  0.50],
+      [460,  0.35], [520,  0.38], // first sharp peak
+      [600,  0.50], [700,  0.62], [820,  0.72], [950,  0.80],
+      [1050, 0.85], [1100, 0.80], // valley floor
+      [1180, 0.70], [1280, 0.55], [1380, 0.38], [1450, 0.28],
+      [1520, 0.32], // tallest peak
+      [1600, 0.45], [1700, 0.55], [1820, 0.48], [1920, 0.40],
+      [2000, 0.50], [2100, 0.62], [2220, 0.70], [2350, 0.75],
+      [2500, 0.72], [2650, 0.68], [2800, 0.72],
+    ],
+    terrainFill:   "#6D6D6D",
+    terrainStroke: "#4A4A4A",
+    terrainFill2:  "#3a3a3a",
+    animals: [
+      { emoji:"🦅", name:"eagle",         x:450,  yOff:50 }, // circling above peak
+      { emoji:"🐐", name:"mountain goat", x:1430, yOff:10 }, // on the high peak
+      { emoji:"🐺", name:"wolf",          x:2200, yOff:10 },
+    ],
+    props: [
+      { e:"⛅", x:200,  sky:40, s:"62px" },
+      { e:"⛅", x:800,  sky:30, s:"55px" },
+      { e:"⛅", x:1500, sky:25, s:"60px" },
+      { e:"⛅", x:2200, sky:40, s:"58px" },
+      { e:"🌲", x:600,  yOff:4, s:"72px" },
+      { e:"🌲", x:900,  yOff:4, s:"65px" },
+      { e:"🌲", x:2080, yOff:4, s:"70px" },
+      { e:"🌲", x:2380, yOff:4, s:"68px" },
+      { e:"🪨", x:520,  yOff:2, s:"40px" },
+      { e:"🪨", x:1100, yOff:2, s:"44px" },
+      { e:"🪨", x:1900, yOff:2, s:"40px" },
+    ],
+  },
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let curLoc = 0;
+let allFound = [];
+let spellAnimal = null, spellEl = null, spellWord = '', spellProg = [], spellDone = false;
+let isDrag = false, lastX = 0, velX = 0, offsetX = 0, maxOff = 0;
+let rafId = null;
+
+// ============================================================
+// TERRAIN RENDERING
+// ============================================================
+function sceneH() { return window.innerHeight - 60; }
+
+// Convert terrain fraction [0..1] to canvas pixel y
+function fracToY(frac) { return Math.round(frac * sceneH()); }
+
+// Get terrain pixel y at scene x for a location
+function getTerrainY(loc, x) {
+  const pts = loc.terrain.map(([px, frac]) => [px, fracToY(frac)]);
+  return terrainHeightAt(pts, x);
+}
+
+function drawTerrainCanvas(loc) {
+  const W = loc.sceneWidth;
+  const H = sceneH();
+  const pts = loc.terrain.map(([px, frac]) => [px, Math.round(frac * H)]);
+
+  const canvas = document.createElement('canvas');
+  canvas.width  = W;
+  canvas.height = H;
+  canvas.className = 'terrain-canvas';
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+
+  const ctx = canvas.getContext('2d');
+
+  // --- deeper ground fill (below main surface) ---
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], pts[0][1] + 30);
+  for (let i = 1; i < pts.length; i++) {
+    const [x0,y0] = pts[i-1], [x1,y1] = pts[i];
+    const cpx = (x0+x1)/2;
+    ctx.bezierCurveTo(cpx, y0+30, cpx, y1+30, x1, y1+30);
+  }
+  ctx.lineTo(W, H);
+  ctx.lineTo(0, H);
+  ctx.closePath();
+  ctx.fillStyle = loc.terrainFill2;
+  ctx.fill();
+
+  // --- main terrain fill ---
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) {
+    const [x0,y0] = pts[i-1], [x1,y1] = pts[i];
+    const cpx = (x0+x1)/2;
+    ctx.bezierCurveTo(cpx, y0, cpx, y1, x1, y1);
+  }
+  ctx.lineTo(W, H);
+  ctx.lineTo(0, H);
+  ctx.closePath();
+
+  // gradient from top-of-terrain down
+  const topY = Math.min(...pts.map(p=>p[1]));
+  const grad = ctx.createLinearGradient(0, topY, 0, H);
+  grad.addColorStop(0, lighten(loc.terrainFill, 30));
+  grad.addColorStop(0.3, loc.terrainFill);
+  grad.addColorStop(1, loc.terrainFill2);
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // --- surface stroke ---
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) {
+    const [x0,y0] = pts[i-1], [x1,y1] = pts[i];
+    const cpx = (x0+x1)/2;
+    ctx.bezierCurveTo(cpx, y0, cpx, y1, x1, y1);
+  }
+  ctx.strokeStyle = loc.terrainStroke;
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  return canvas;
+}
+
+function drawSkyCanvas(loc) {
+  const W = loc.sceneWidth;
+  const H = sceneH();
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  canvas.className = 'sky-canvas';
+  canvas.style.width = W+'px'; canvas.style.height = H+'px';
+  const ctx = canvas.getContext('2d');
+  const grad = ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0, loc.sky.top);
+  grad.addColorStop(0.5, loc.sky.mid);
+  grad.addColorStop(1, loc.sky.bot);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,W,H);
+  return canvas;
+}
+
+function lighten(hex, amt) {
+  // crude lighten: increase RGB by amt
+  const num = parseInt(hex.replace('#',''), 16);
+  const r = Math.min(255, (num>>16) + amt);
+  const g = Math.min(255, ((num>>8)&0xff) + amt);
+  const b = Math.min(255, (num&0xff) + amt);
+  return `rgb(${r},${g},${b})`;
+}
+
+// ============================================================
+// WELCOME → GAME
+// ============================================================
+function startGame() {
+  document.getElementById('welcome').style.display = 'none';
+  gotoLocation(0);
+}
+
+function gotoLocation(idx) {
+  curLoc = idx;
+  const loc = LOCATIONS[idx];
+  const tv = document.getElementById('travel');
+  tv.style.display = 'flex';
+  document.getElementById('travel-dest').textContent = loc.name;
+  setTimeout(() => {
+    tv.style.display = 'none';
+    buildScene(loc);
+    document.getElementById('hud').style.display = 'flex';
+    document.getElementById('back-link').style.display = 'inline-flex';
+    document.getElementById('scene-wrapper').style.display = 'block';
+    buildHud(loc);
+    offsetX = 0;
+    applyOffset(0);
+  }, 2400);
+}
+
+// ============================================================
+// HUD
+// ============================================================
+function buildHud(loc) {
+  document.getElementById('hud-loc').textContent = '📍 ' + loc.name;
+  const dots = document.getElementById('hud-dots');
+  dots.innerHTML = '';
+  loc.animals.forEach(a => {
+    const d = document.createElement('div');
+    d.className = 'hud-dot' + (a._found ? ' found' : '');
+    d.id = `dot-${curLoc}-${a.name.replace(/\s/g,'_')}`;
+    d.textContent = a.emoji;
+    dots.appendChild(d);
+  });
+  document.getElementById('scroll-hint').style.opacity = '1';
+}
+
+// ============================================================
+// BUILD SCENE
+// ============================================================
+function buildScene(loc) {
+  const scene = document.getElementById('scene');
+  scene.innerHTML = '';
+  scene.style.width = loc.sceneWidth + 'px';
+  maxOff = Math.max(0, loc.sceneWidth - window.innerWidth);
+
+  const H = sceneH();
+  const c = document.createElement('div');
+  c.className = 'loc-scene';
+  c.style.width  = loc.sceneWidth + 'px';
+  c.style.height = H + 'px';
+
+  // Sky
+  c.appendChild(drawSkyCanvas(loc));
+  // Terrain
+  c.appendChild(drawTerrainCanvas(loc));
+
+  // Props
+  loc.props.forEach(p => {
+    const el = document.createElement('div');
+    el.className = 'prop';
+    el.textContent = p.e;
+    el.style.fontSize = p.s || '50px';
+
+    if (p.sky !== undefined) {
+      // Fixed distance from top of scene
+      el.style.left = p.x + 'px';
+      el.style.top  = p.sky + 'px';
+    } else {
+      // Sit on terrain surface
+      const ty = getTerrainY(loc, p.x);
+      el.style.left   = p.x + 'px';
+      el.style.bottom = (H - ty + (p.yOff || 0)) + 'px';
+    }
+    c.appendChild(el);
+  });
+
+  // Animals
+  loc.animals.forEach((a, i) => {
+    const el = document.createElement('div');
+    el.className = 'scene-animal' + (a._found ? ' found' : '');
+    el.textContent = a.emoji;
+    el.style.fontSize = 'clamp(44px,7vw,72px)';
+    el.style.animationDelay = (i * 0.9) + 's';
+    el.id = `ani-${curLoc}-${a.name.replace(/\s/g,'_')}`;
+
+    // Position on terrain
+    const ty = getTerrainY(loc, a.x);
+    el.style.left   = a.x + 'px';
+    el.style.bottom = (H - ty + (a.yOff || 0)) + 'px';
+
+    if (!a._found) el.onclick = (e) => { e.stopPropagation(); openSpell(a, el); };
+    c.appendChild(el);
+  });
+
+  scene.appendChild(c);
+}
+
+// ============================================================
+// DRAG / PAN
+// ============================================================
+const wrapper = document.getElementById('scene-wrapper');
+
+function applyOffset(x) {
+  offsetX = Math.max(-maxOff, Math.min(0, x));
+  document.getElementById('scene').style.transform = `translateX(${offsetX}px)`;
+}
+
+wrapper.addEventListener('mousedown', e => {
+  isDrag = true; lastX = e.clientX; velX = 0; cancelAnimationFrame(rafId);
+});
+wrapper.addEventListener('mousemove', e => {
+  if (!isDrag) return;
+  velX = e.clientX - lastX; lastX = e.clientX;
+  applyOffset(offsetX + velX);
+  document.getElementById('scroll-hint').style.opacity = '0';
+});
+wrapper.addEventListener('mouseup',    endDrag);
+wrapper.addEventListener('mouseleave', endDrag);
+wrapper.addEventListener('touchstart', e => {
+  isDrag = true; lastX = e.touches[0].clientX; velX = 0; cancelAnimationFrame(rafId);
+}, {passive:true});
+wrapper.addEventListener('touchmove', e => {
+  if (!isDrag) return;
+  const tx = e.touches[0].clientX;
+  velX = tx - lastX; lastX = tx;
+  applyOffset(offsetX + velX);
+  document.getElementById('scroll-hint').style.opacity = '0';
+}, {passive:true});
+wrapper.addEventListener('touchend', endDrag);
+
+function endDrag() {
+  if (!isDrag) return;
+  isDrag = false;
+  momentum();
+}
+function momentum() {
+  if (Math.abs(velX) < 0.5) return;
+  velX *= 0.92;
+  applyOffset(offsetX + velX);
+  rafId = requestAnimationFrame(momentum);
+}
+
+window.addEventListener('resize', () => {
+  maxOff = Math.max(0, LOCATIONS[curLoc].sceneWidth - window.innerWidth);
+});
+
+// ============================================================
+// SPELLING
+// ============================================================
+function openSpell(animal, el) {
+  spellAnimal = animal; spellEl = el;
+  spellWord = animal.name.toLowerCase();
+  spellProg = Array(spellWord.length).fill(null);
+  spellDone = false;
+  document.getElementById('sp-emoji').textContent = animal.emoji;
+  document.getElementById('sp-success').style.display = 'none';
+  document.getElementById('spell-overlay').style.display = 'flex';
+  renderTiles(); renderKeys();
+}
+
+function renderTiles() {
+  const c = document.getElementById('letter-tiles');
+  c.innerHTML = '';
+  spellWord.split('').forEach((ch, i) => {
+    if (ch === ' ') {
+      const g = document.createElement('div'); g.style.width = '14px'; c.appendChild(g); return;
+    }
+    const t = document.createElement('div');
+    const val = spellProg[i];
+    t.id = `tile-${i}`;
+    t.className = 'tile' + (val ? ' correct' : '');
+    t.textContent = val ? val.toUpperCase() : '';
+    c.appendChild(t);
+  });
+}
+
+function renderKeys() {
+  const kb = document.getElementById('keyboard');
+  kb.innerHTML = '';
+  'abcdefghijklmnopqrstuvwxyz'.split('').forEach(ch => {
+    const k = document.createElement('button');
+    k.className = 'key'; k.textContent = ch.toUpperCase(); k.dataset.ch = ch;
+    k.onclick = () => pressKey(ch, k);
+    kb.appendChild(k);
+  });
+  const del = document.createElement('button');
+  del.className = 'key del-key'; del.innerHTML = '⌫'; del.onclick = deleteLast;
+  kb.appendChild(del);
+}
+
+function pressKey(ch, keyEl) {
+  if (spellDone) return;
+  const nextIdx = spellProg.findIndex((v, i) => v === null && spellWord[i] !== ' ');
+  if (nextIdx === -1) return;
+  const correct = ch === spellWord[nextIdx];
+  if (!correct) {
+    if (keyEl) { keyEl.classList.add('ok-wrong'); setTimeout(() => keyEl.classList.remove('ok-wrong'), 500); }
+    return;
+  }
+  spellProg[nextIdx] = ch;
+  const tile = document.getElementById(`tile-${nextIdx}`);
+  if (tile) { tile.textContent = ch.toUpperCase(); tile.className = 'tile correct'; }
+  // Key: green if all instances done, yellow if more needed
+  const allFilled = spellWord.split('').every((c, i) => c !== ch || spellProg[i] === ch);
+  if (keyEl) {
+    if (allFilled) { keyEl.classList.remove('ok-pending'); keyEl.classList.add('ok-correct'); }
+    else keyEl.classList.add('ok-pending');
+  }
+  const done = spellWord.split('').every((c, i) => c === ' ' || spellProg[i] === c);
+  if (done) wordComplete();
+}
+
+function deleteLast() {
+  if (spellDone) return;
+  for (let i = spellWord.length - 1; i >= 0; i--) {
+    if (spellWord[i] !== ' ' && spellProg[i] !== null) {
+      const removedCh = spellProg[i];
+      spellProg[i] = null;
+      const t = document.getElementById(`tile-${i}`);
+      if (t) { t.textContent = ''; t.className = 'tile'; }
+      const k = document.querySelector(`.key[data-ch="${removedCh}"]`);
+      if (k) { k.classList.remove('ok-correct'); k.classList.remove('ok-pending'); }
+      break;
+    }
+  }
+}
+
+function revealHint() {
+  if (spellDone) return;
+  const empties = [];
+  spellWord.split('').forEach((c, i) => { if (c !== ' ' && spellProg[i] === null) empties.push(i); });
+  if (!empties.length) return;
+  const idx = empties[Math.floor(Math.random() * empties.length)];
+  const ch = spellWord[idx];
+  spellProg[idx] = ch;
+  const tile = document.getElementById(`tile-${idx}`);
+  if (tile) { tile.textContent = ch.toUpperCase(); tile.className = 'tile correct'; }
+  const allFilled = spellWord.split('').every((c, i) => c !== ch || spellProg[i] === ch);
+  if (allFilled) document.querySelectorAll(`.key[data-ch="${ch}"]`).forEach(k => k.classList.add('ok-correct'));
+  const done = spellWord.split('').every((c, i) => c === ' ' || spellProg[i] === c);
+  if (done) wordComplete();
+}
+
+function wordComplete() {
+  spellDone = true;
+  document.getElementById('sp-success').style.display = 'block';
+  spellAnimal._found = true;
+  spellEl.classList.add('found');
+  spellEl.onclick = null;
+  const dot = document.getElementById(`dot-${curLoc}-${spellAnimal.name.replace(/\s/g,'_')}`);
+  if (dot) dot.classList.add('found');
+  allFound.push({ emoji: spellAnimal.emoji, name: spellAnimal.name });
+  setTimeout(() => {
+    document.getElementById('spell-overlay').style.display = 'none';
+    spellDone = false;
+    const loc = LOCATIONS[curLoc];
+    if (loc.animals.every(a => a._found)) {
+      if (curLoc + 1 < LOCATIONS.length) setTimeout(() => gotoLocation(curLoc + 1), 500);
+      else setTimeout(() => showWin(), 600);
+    }
+  }, 1600);
+}
+
+// ============================================================
+// WIN
+// ============================================================
+function showWin() {
+  document.getElementById('hud').style.display = 'none';
+  document.getElementById('back-link').style.display = 'none';
+  document.getElementById('scene-wrapper').style.display = 'none';
+  document.getElementById('win-screen').style.display = 'flex';
+  const list = document.getElementById('win-animals');
+  list.innerHTML = '';
+  allFound.forEach((a, i) => {
+    const b = document.createElement('div');
+    b.className = 'win-badge'; b.style.animationDelay = (i*.07)+'s';
+    b.innerHTML = `<span>${a.emoji}</span>${a.name}`;
+    list.appendChild(b);
+  });
+  const layer = document.getElementById('confetti-layer'); layer.innerHTML = '';
+  const emojis = ['🎉','⭐','🌟','✨','🎊','🌈','💛','🎈','🔴','🟢'];
+  for (let i = 0; i < 50; i++) {
+    const p = document.createElement('div'); p.className = 'cf';
+    p.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    p.style.left = Math.random()*100+'vw';
+    p.style.animationDuration = (1.4+Math.random()*2.5)+'s';
+    p.style.animationDelay = Math.random()*2+'s';
+    layer.appendChild(p);
+  }
+}
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (document.getElementById('spell-overlay').style.display !== 'flex') return;
+  const ch = e.key.toLowerCase();
+  if (ch === 'backspace') { deleteLast(); return; }
+  if (/^[a-z]$/.test(ch)) pressKey(ch, document.querySelector(`.key[data-ch="${ch}"]`));
+});
+</script>
+</body>
+</html>
