@@ -5,6 +5,22 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
+    --sky: #fef9f0;
+    --sun: #FFD93D;
+    --coral: #FF6B6B;
+    --mint: #6BCB77;
+    --blue: #4D96FF;
+    --purple: #C77DFF;
+    --dark: #2d2d44;
+    --card: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: #dceeff;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -305,13 +321,13 @@
     <span class="tile-badge badge-play">Play Now &#9654;</span>
   </a>
 
-  <!-- Coming Soon: Number Quest -->
-  <div class="game-tile coming-soon">
-    <span class="tile-emoji">&#128290;</span>
-    <div class="tile-title">Number Quest</div>
-    <div class="tile-desc">Count, add, and match numbers in this fun math adventure for little learners.</div>
-    <span class="tile-badge badge-soon">Coming Soon</span>
-  </div>
+  <!-- Animal Explorer - active game -->
+  <a href="animal-explorer.html" class="game-tile active">
+    <span class="tile-emoji">🌍</span>
+    <div class="tile-title">Animal Explorer</div>
+    <div class="tile-desc">Pan across wild landscapes, find hidden animals, and spell their names to earn your explorer badge!</div>
+    <span class="tile-badge badge-play">Play Now &#9654;</span>
+  </a>
 
   <!-- Coming Soon: Color Match -->
   <div class="game-tile coming-soon">
