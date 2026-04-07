@@ -1,0 +1,353 @@
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Finn's Game World</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #fef9f0;
+    --sun: #FFD93D;
+    --coral: #FF6B6B;
+    --mint: #6BCB77;
+    --blue: #4D96FF;
+    --purple: #C77DFF;
+    --dark: #2d2d44;
+    --card: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: #dceeff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+    background-image: radial-gradient(circle at 20% 20%, #c8e4ff 0%, transparent 50%),
+                      radial-gradient(circle at 80% 80%, #b8d8ff 0%, transparent 50%);
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2.2rem, 8vw, 3.5rem);
+    color: var(--coral);
+
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    text-shadow: 3px 3px 0 #ffd6d6;
+  }
+
+  .subtitle {
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    color: #555;
+    font-weight: 700;
+
+  }
+
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+    max-width: 960px;
+    width: 100%;
+
+
+
+
+
+
+  }
+
+  .game-tile {
+
+
+    background: white;
+    border-radius: 28px;
+    padding: 28px 24px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+
+
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .game-tile:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.14);
+  }
+
+  .game-tile::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+
+    border-radius: 28px 28px 0 0;
+  }
+
+  .game-tile.active { cursor: pointer; }
+  .game-tile.coming-soon { cursor: default; }
+
+  .game-tile.active::before {
+    background: linear-gradient(90deg, var(--coral), var(--sun), var(--mint));
+  }
+
+  .game-tile.coming-soon::before {
+    background: linear-gradient(90deg, #ddd, #ccc, #ddd);
+
+
+
+
+
+
+
+
+
+  }
+
+  .game-tile.coming-soon:hover {
+    transform: none;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+
+
+
+  }
+
+  .tile-emoji {
+    font-size: 4rem;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .game-tile.active .tile-emoji {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  }
+
+  .tile-title {
+
+
+
+
+
+
+
+
+
+
+
+
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  }
+
+  .game-tile.active .tile-title { color: var(--dark); }
+  .game-tile.coming-soon .tile-title { color: #aaa; }
+
+
+
+  .tile-desc {
+    font-size: 0.95rem;
+    line-height: 1.4;
+    margin-bottom: 16px;
+  }
+
+  .game-tile.active .tile-desc { color: #666; }
+  .game-tile.coming-soon .tile-desc { color: #bbb; }
+
+
+
+
+  .tile-badge {
+    display: inline-block;
+    padding: 6px 18px;
+    border-radius: 50px;
+
+
+    font-weight: 800;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+
+
+
+
+
+
+
+
+  }
+
+  .badge-play {
+    background: var(--mint);
+    color: white;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.12);
+
+  }
+
+  .badge-soon {
+
+    background: #f0f0f0;
+    color: #aaa;
+
+
+
+  }
+
+  .footer {
+    margin-top: 40px;
+    text-align: center;
+    color: #999;
+    font-size: 0.85rem;
+    font-weight: 700;
+
+
+
+
+
+
+  }
+
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Finn's Game World</h1>
+  <p class="subtitle">Pick a game and let's play!</p>
+
+
+
+
+</div>
+
+<div class="games-grid">
+
+  <!-- Letter Adventure - active game -->
+  <a href="letter-adventure.html" class="game-tile active">
+    <span class="tile-emoji">&#128221;</span>
+    <div class="tile-title">Letter Adventure</div>
+    <div class="tile-desc">Spell words letter-by-letter! Tap the right letters to complete each word and earn stars.</div>
+    <span class="tile-badge badge-play">Play Now &#9654;</span>
+  </a>
+
+  <!-- Animal Explorer - active game -->
+  <a href="animal-explorer.html" class="game-tile active">
+    <span class="tile-emoji">🌍</span>
+    <div class="tile-title">Animal Explorer</div>
+    <div class="tile-desc">Pan across wild landscapes, find hidden animals, and spell their names to earn your explorer badge!</div>
+    <span class="tile-badge badge-play">Play Now &#9654;</span>
+  </a>
+
+  <!-- Coming Soon: Color Match -->
+  <div class="game-tile coming-soon">
+    <span class="tile-emoji">&#127912;</span>
+    <div class="tile-title">Color Match</div>
+    <div class="tile-desc">Find and match colors in a memory game that sharpens your mind and eyes!</div>
+    <span class="tile-badge badge-soon">Coming Soon</span>
+  </div>
+
+  <!-- Coming Soon: Shape Safari -->
+  <div class="game-tile coming-soon">
+    <span class="tile-emoji">&#128316;</span>
+    <div class="tile-title">Shape Safari</div>
+    <div class="tile-desc">Spot circles, squares, and triangles on a wild safari through the shapes!</div>
+    <span class="tile-badge badge-soon">Coming Soon</span>
+  </div>
+
+</div>
+<div class="footer">
+  More games coming soon!
+</div>
+</body>
+</html>
