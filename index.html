@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Austin Getchell — Product Manager</title>
+  <title>Austin Getchell — Product & Program Leader</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -66,6 +66,51 @@
       border-radius: 4px; transition: background .2s !important;
     }
     .nav-cta:hover { background: #153d73 !important; color: var(--surface) !important; }
+
+    /* ── MOBILE HAMBURGER ── */
+    .nav-hamburger {
+      display: none;
+      background: none; border: none; cursor: pointer;
+      padding: .4rem; color: var(--ink-soft);
+      flex-direction: column; gap: 5px; align-items: center; justify-content: center;
+    }
+    .nav-hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--ink-soft); border-radius: 2px;
+      transition: transform .25s, opacity .25s;
+    }
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* Mobile drawer */
+    .mobile-menu {
+      display: none;
+      position: fixed; top: var(--nav-h); left: 0; right: 0;
+      background: rgba(248,248,246,0.98);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--rule);
+      z-index: 99;
+      flex-direction: column;
+      padding: 1.2rem 2rem 1.6rem;
+      gap: .2rem;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-size: .9rem; font-weight: 500; letter-spacing: .05em;
+      text-transform: uppercase; color: var(--ink-soft);
+      text-decoration: none; padding: .65rem 0;
+      border-bottom: 1px solid var(--rule);
+      transition: color .2s;
+    }
+    .mobile-menu a:last-child { border-bottom: none; margin-top: .4rem; }
+    .mobile-menu a:hover { color: var(--accent); }
+    .mobile-menu .mobile-cta {
+      background: var(--accent); color: var(--surface) !important;
+      padding: .7rem 1.2rem; border-radius: 4px;
+      text-align: center; border-bottom: none !important;
+    }
+    .mobile-menu .mobile-cta:hover { background: #153d73 !important; }
 
     /* ── HERO ── */
     #hero {
@@ -205,11 +250,49 @@
       color: var(--accent-warm); font-size: .8rem;
     }
 
+    /* ── WORK / CASE STUDIES ── */
+    #work { background: var(--surface); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+    .work-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    .work-card {
+      background: var(--bg); border: 1px solid var(--rule);
+      border-radius: 10px; overflow: hidden;
+      transition: border-color .2s, box-shadow .2s, transform .2s;
+      display: flex; flex-direction: column;
+    }
+    .work-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 8px 32px rgba(26,75,140,.08);
+      transform: translateY(-3px);
+    }
+    .work-card-banner {
+      height: 6px;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent-warm) 100%);
+    }
+    .work-card-body { padding: 1.6rem; flex: 1; display: flex; flex-direction: column; }
+    .work-card-type {
+      font-size: .7rem; font-weight: 600; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-light); padding: .2rem .55rem;
+      border-radius: 3px; display: inline-block; margin-bottom: .9rem;
+    }
+    .work-card h3 { font-size: 1rem; font-weight: 600; line-height: 1.35; margin-bottom: .6rem; color: var(--ink); }
+    .work-card p { font-size: .83rem; color: var(--ink-muted); line-height: 1.6; flex: 1; }
+    .work-card-meta {
+      margin-top: 1.2rem; padding-top: 1rem;
+      border-top: 1px solid var(--rule);
+      display: flex; flex-wrap: wrap; gap: .4rem;
+    }
+    .work-pill {
+      font-size: .7rem; font-weight: 500;
+      background: var(--surface); border: 1px solid var(--rule);
+      color: var(--ink-muted); padding: .2rem .6rem; border-radius: 20px;
+    }
+
     /* ── SKILLS ── */
-    #skills { background: var(--surface); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+    #skills { background: var(--bg); }
     .skills-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
     .skill-card {
-      background: var(--bg); border: 1px solid var(--rule);
+      background: var(--surface); border: 1px solid var(--rule);
       border-radius: 10px; padding: 1.6rem;
       transition: border-color .2s, box-shadow .2s;
     }
@@ -221,36 +304,6 @@
     .skill-list { list-style: none; display: flex; flex-direction: column; gap: .35rem; }
     .skill-list li { font-size: .82rem; color: var(--ink-soft); padding-left: .9rem; position: relative; }
     .skill-list li::before { content: '·'; position: absolute; left: 0; color: var(--accent-warm); font-weight: 700; }
-
-    /* ── BLOG ── */
-    #blog { background: var(--bg); }
-    .blog-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
-    .blog-card {
-      background: var(--surface); border: 1px solid var(--rule);
-      border-radius: 10px; padding: 1.8rem;
-      transition: border-color .2s, transform .2s, box-shadow .2s;
-      cursor: pointer; text-decoration: none; display: block; color: inherit;
-    }
-    .blog-card:hover {
-      border-color: var(--accent); transform: translateY(-3px);
-      box-shadow: 0 8px 32px rgba(26,75,140,.08);
-    }
-    .blog-tag {
-      display: inline-block; font-size: .7rem; font-weight: 600;
-      letter-spacing: .07em; text-transform: uppercase;
-      color: var(--accent); background: var(--accent-light);
-      padding: .2rem .55rem; border-radius: 3px; margin-bottom: .8rem;
-    }
-    .blog-card h3 { font-size: .97rem; font-weight: 600; line-height: 1.4; margin-bottom: .6rem; }
-    .blog-card p { font-size: .83rem; color: var(--ink-muted); line-height: 1.6; margin-bottom: 1rem; }
-    .blog-meta { font-size: .75rem; color: var(--ink-muted); }
-    .blog-placeholder {
-      text-align: center; padding: 3rem 2rem;
-      background: var(--surface); border: 1.5px dashed var(--rule);
-      border-radius: 10px; color: var(--ink-muted);
-      font-size: .9rem; grid-column: 1 / -1;
-    }
-    .blog-placeholder strong { display: block; margin-bottom: .4rem; color: var(--ink-soft); font-size: 1rem; }
 
     /* ── CONTACT ── */
     #contact { background: var(--surface); border-top: 1px solid var(--rule); }
@@ -265,37 +318,21 @@
     }
     .contact-link:hover { border-color: var(--accent); color: var(--accent); }
     .contact-link-icon { font-size: 1rem; }
-    .contact-form { display: flex; flex-direction: column; gap: 1rem; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .form-group { display: flex; flex-direction: column; gap: .4rem; }
-    label { font-size: .78rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-soft); }
-    input, textarea, select {
-      font-family: var(--sans); font-size: .9rem;
-      background: var(--bg); border: 1.5px solid var(--rule);
-      border-radius: 6px; padding: .7rem .9rem; color: var(--ink);
-      transition: border-color .2s, box-shadow .2s; outline: none;
-    }
-    input:focus, textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(26,75,140,.1);
-    }
-    textarea { resize: vertical; min-height: 120px; }
-    .form-submit {
-      background: var(--accent); color: var(--surface); border: none;
-      padding: .8rem 2rem; border-radius: 6px;
-      font-family: var(--sans); font-size: .9rem; font-weight: 600;
-      cursor: pointer; transition: background .2s, transform .15s;
-      align-self: flex-start;
-    }
-    .form-submit:hover { background: #153d73; transform: translateY(-1px); }
-    .form-note { font-size: .78rem; color: var(--ink-muted); }
 
     /* ── FOOTER ── */
     footer {
       background: var(--ink); color: rgba(255,255,255,.45);
       padding: 2rem 0; text-align: center; font-size: .8rem;
+      position: relative;
     }
     footer strong { color: rgba(255,255,255,.7); }
+    /* Hidden easter egg link - nearly invisible */
+    .footer-secret {
+      position: absolute; bottom: 4px; right: 8px;
+      color: rgba(255,255,255,.06); font-size: .65rem;
+      text-decoration: none; user-select: none;
+    }
+    .footer-secret:hover { color: rgba(255,255,255,.25); }
 
     /* ── SCROLL ANIMATIONS ── */
     .fade-up {
@@ -306,16 +343,17 @@
 
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .nav-hamburger { display: flex; }
+
       .hero-inner { grid-template-columns: 1fr; }
       .hero-card { display: none; }
       .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 2.5rem; }
-      .skills-grid, .blog-grid { grid-template-columns: 1fr 1fr; }
+      .skills-grid, .work-grid { grid-template-columns: 1fr 1fr; }
       .timeline-item { grid-template-columns: 1fr; gap: .5rem; }
-      .form-row { grid-template-columns: 1fr; }
-      .nav-links { display: none; }
     }
     @media (max-width: 540px) {
-      .skills-grid, .blog-grid { grid-template-columns: 1fr; }
+      .skills-grid, .work-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -328,25 +366,37 @@
       <ul class="nav-links">
         <li><a href="#about">About</a></li>
         <li><a href="#experience">Experience</a></li>
+        <li><a href="#work">Work</a></li>
         <li><a href="#skills">Skills</a></li>
-        <li><a href="#blog">Thinking</a></li>
         <li><a href="#contact" class="nav-cta">Contact</a></li>
       </ul>
+      <button class="nav-hamburger" id="hamburger" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </nav>
+
+  <!-- MOBILE MENU -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#about" class="mobile-nav-link">About</a>
+    <a href="#experience" class="mobile-nav-link">Experience</a>
+    <a href="#work" class="mobile-nav-link">Work</a>
+    <a href="#skills" class="mobile-nav-link">Skills</a>
+    <a href="#contact" class="mobile-nav-link mobile-cta">Contact</a>
+  </div>
 
   <!-- HERO -->
   <section id="hero">
     <div class="hero-inner">
       <div>
-        <div class="hero-eyebrow">Product Manager · Chicago Area</div>
-        <h1>Building products<br>people <em>actually</em><br>want to use.</h1>
+        <div class="hero-eyebrow">Product &amp; Program Leader · Chicago Area</div>
+        <h1>I can read<br>the schema <em>and</em><br>run the meeting.</h1>
         <p class="hero-sub">
-          14+ years turning complex business problems into clean product solutions.
-          I bridge strategy and execution — from user research to launch to iteration.
+          14+ years building enterprise software at scale — owning roadmaps, driving cross-functional delivery,
+          and leveraging AI to move faster and ship smarter. I bridge deep technical fluency with product and stakeholder strategy.
         </p>
         <div class="hero-actions">
-          <a href="#experience" class="btn-primary">View My Work</a>
+          <a href="#work" class="btn-primary">See My Work</a>
           <a href="#contact" class="btn-ghost">Get in Touch</a>
         </div>
       </div>
@@ -377,7 +427,7 @@
           <span class="tag">Localization</span>
           <span class="tag">Stakeholder Mgmt</span>
           <span class="tag">SQL</span>
-          <span class="tag">UX Research</span>
+          <span class="tag">AI Integration</span>
         </div>
       </div>
     </div>
@@ -401,13 +451,12 @@
             My work sits at the intersection of product management, systems architecture,
             and cross-functional leadership. I've owned platform roadmaps, driven
             prioritization across competing stakeholder needs, and led multi-month
-            technical migrations — the kind of work that is product management in practice,
-            whether the title reflects it or not.
+            technical migrations — the kind of work that defines product management in practice.
           </p>
           <p>
-            I'm currently seeking a formal Product Manager role where I can bring this
-            depth of experience to a team that values thoughtful, user-centered product
-            thinking.
+            I'm making the transition to roles where product leadership is the job description —
+            open to Product Manager, Project Manager, Program Manager, Solutions Specialist,
+            and IT Business Analyst opportunities in the Chicago area or remote.
           </p>
         </div>
         <div class="about-highlights fade-up" style="transition-delay:.15s">
@@ -423,6 +472,13 @@
             <div class="highlight-text">
               <strong>Global Platform Scale</strong>
               <span>Localization architecture across 65 countries, 30 languages, 130 locales</span>
+            </div>
+          </div>
+          <div class="highlight-item">
+            <div class="highlight-icon">🤖</div>
+            <div class="highlight-text">
+              <strong>AI-Augmented Delivery</strong>
+              <span>Using AI tooling to accelerate discovery, documentation, and decision-making</span>
             </div>
           </div>
           <div class="highlight-item">
@@ -460,15 +516,16 @@
             <div class="timeline-company">ComPsych Corporation<br>Wheaton, IL</div>
           </div>
           <div class="timeline-content">
-            <h3>Senior Business Systems Analyst (de facto Product Manager)</h3>
+            <h3>Senior Business Systems Analyst → Product Manager</h3>
             <p>Led product strategy, roadmap input, and cross-functional delivery for enterprise platforms
-            serving over 1 million users globally. Acted as the primary product voice between engineering,
+            serving over 1 million users globally. Primary product voice between engineering,
             operations, legal, and external stakeholders.</p>
             <ul class="timeline-bullets">
               <li>Owned content architecture for a localization system spanning 130 locales, 65 countries, and 30 languages</li>
               <li>Identified a structural content bottleneck and architected a redesign separating translation layers from regionalized data — a ~4-month, 30,000-file migration</li>
               <li>Drove feature prioritization, backlog grooming, and release planning across multi-quarter roadmaps</li>
               <li>Built SQL-driven reporting workflows and automated dashboards to surface platform health metrics</li>
+              <li>Incorporated AI tooling into discovery and documentation workflows, reducing cycle time on requirements and analysis deliverables</li>
               <li>Managed vendor and stakeholder relationships across legal, compliance, and international teams</li>
             </ul>
           </div>
@@ -495,6 +552,65 @@
     </div>
   </section>
 
+  <!-- WORK / CASE STUDIES -->
+  <section id="work">
+    <div class="section-inner">
+      <div class="section-header fade-up">
+        <div class="section-label">Work</div>
+        <h2>Selected projects.</h2>
+        <p class="section-sub">A look at the problems behind the deliverables.</p>
+      </div>
+      <div class="work-grid">
+
+        <div class="work-card fade-up">
+          <div class="work-card-banner"></div>
+          <div class="work-card-body">
+            <span class="work-card-type">Platform Redesign</span>
+            <h3>Enterprise Portal Rebrand &amp; UX Overhaul</h3>
+            <p>Led end-to-end product ownership for a full-scale rebrand of a client-facing enterprise portal — from stakeholder alignment and IA restructuring through QA and launch. Coordinated design, engineering, legal, and marketing across a multi-quarter timeline.</p>
+            <div class="work-card-meta">
+              <span class="work-pill">Product Ownership</span>
+              <span class="work-pill">Stakeholder Mgmt</span>
+              <span class="work-pill">IA / UX</span>
+              <span class="work-pill">Launch Planning</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="work-card fade-up" style="transition-delay:.1s">
+          <div class="work-card-banner"></div>
+          <div class="work-card-body">
+            <span class="work-card-type">Partner Integration</span>
+            <h3>Third-Party Partner Integration Program</h3>
+            <p>Defined requirements, scoped delivery, and managed rollout for a suite of third-party partner integrations connecting the core platform to external service providers. Navigated security review, data mapping, and UAT across multiple partners simultaneously.</p>
+            <div class="work-card-meta">
+              <span class="work-pill">Systems Integration</span>
+              <span class="work-pill">Requirements</span>
+              <span class="work-pill">UAT</span>
+              <span class="work-pill">Vendor Mgmt</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="work-card fade-up" style="transition-delay:.2s">
+          <div class="work-card-banner"></div>
+          <div class="work-card-body">
+            <span class="work-card-type">API Development</span>
+            <h3>API Strategy &amp; Developer-Facing Product Build</h3>
+            <p>Served as product lead for an internal API development initiative — translating business needs into technical specifications, defining contract requirements, and working directly with engineering to deliver a scalable integration surface for downstream consumers.</p>
+            <div class="work-card-meta">
+              <span class="work-pill">API Design</span>
+              <span class="work-pill">Technical Specs</span>
+              <span class="work-pill">Engineering Collab</span>
+              <span class="work-pill">Documentation</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
   <!-- SKILLS -->
   <section id="skills">
     <div class="section-inner">
@@ -507,38 +623,49 @@
           <div class="skill-card-icon">📋</div>
           <h3>Product Management</h3>
           <ul class="skill-list">
-            <li>Roadmap development & OKR alignment</li>
+            <li>Roadmap development &amp; OKR alignment</li>
             <li>Backlog prioritization (RICE, MoSCoW)</li>
-            <li>User story writing & acceptance criteria</li>
+            <li>User story writing &amp; acceptance criteria</li>
             <li>Go-to-market planning</li>
-            <li>Product discovery & user research</li>
+            <li>Product discovery &amp; user research</li>
           </ul>
         </div>
         <div class="skill-card fade-up" style="transition-delay:.1s">
+          <div class="skill-card-icon">🤖</div>
+          <h3>AI &amp; Automation</h3>
+          <ul class="skill-list">
+            <li>AI-assisted requirements &amp; documentation</li>
+            <li>Prompt engineering for workflow acceleration</li>
+            <li>Automated reporting pipelines (Python)</li>
+            <li>AI tooling evaluation &amp; adoption</li>
+            <li>Process automation &amp; scripting</li>
+          </ul>
+        </div>
+        <div class="skill-card fade-up" style="transition-delay:.2s">
           <div class="skill-card-icon">⚙️</div>
           <h3>Technical Fluency</h3>
           <ul class="skill-list">
             <li>SQL (SQL Server, stored procedures)</li>
-            <li>Data modeling & reporting (Power BI)</li>
-            <li>API concepts & system integrations</li>
-            <li>Content architecture & localization</li>
+            <li>Data modeling &amp; reporting (Power BI)</li>
+            <li>API concepts &amp; system integrations</li>
+            <li>Content architecture &amp; localization</li>
             <li>Agile / Scrum / Kanban</li>
           </ul>
         </div>
-        <div class="skill-card fade-up" style="transition-delay:.2s">
+        <div class="skill-card fade-up" style="transition-delay:.3s">
           <div class="skill-card-icon">🗣️</div>
-          <h3>Leadership & Collaboration</h3>
+          <h3>Leadership &amp; Collaboration</h3>
           <ul class="skill-list">
-            <li>Stakeholder management & alignment</li>
+            <li>Stakeholder management &amp; alignment</li>
             <li>Cross-functional team facilitation</li>
             <li>Executive communication</li>
             <li>Requirements elicitation</li>
-            <li>Vendor & partner management</li>
+            <li>Vendor &amp; partner management</li>
           </ul>
         </div>
-        <div class="skill-card fade-up" style="transition-delay:.3s">
+        <div class="skill-card fade-up" style="transition-delay:.4s">
           <div class="skill-card-icon">🌐</div>
-          <h3>Globalization & Scale</h3>
+          <h3>Globalization &amp; Scale</h3>
           <ul class="skill-list">
             <li>Localization platform architecture</li>
             <li>Multi-region content strategy</li>
@@ -546,62 +673,21 @@
             <li>International compliance coordination</li>
           </ul>
         </div>
-        <div class="skill-card fade-up" style="transition-delay:.4s">
-          <div class="skill-card-icon">📊</div>
-          <h3>Analytics & Data</h3>
-          <ul class="skill-list">
-            <li>KPI definition & tracking</li>
-            <li>Dashboard design & automation</li>
-            <li>Data-driven prioritization</li>
-            <li>A/B testing concepts</li>
-          </ul>
-        </div>
         <div class="skill-card fade-up" style="transition-delay:.5s">
           <div class="skill-card-icon">🛠️</div>
-          <h3>Tools & Platforms</h3>
+          <h3>Tools &amp; Platforms</h3>
           <ul class="skill-list">
             <li>Jira, Confluence, Azure DevOps</li>
             <li>Microsoft 365, Power BI</li>
             <li>SQL Server, Excel (advanced)</li>
-            <li>Figma (wireframing & review)</li>
+            <li>Figma (wireframing &amp; review)</li>
           </ul>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- BLOG / THINKING -->
-  <section id="blog">
-    <div class="section-inner">
-      <div class="section-header fade-up">
-        <div class="section-label">Thinking</div>
-        <h2>Ideas worth writing down.</h2>
-        <p class="section-sub">Product perspectives, lessons from the field, and the occasional unpopular opinion.</p>
-      </div>
-      <div class="blog-grid">
-        <a class="blog-card fade-up" href="#">
-          <span class="blog-tag">Product Strategy</span>
-          <h3>Why Most "Product Roadmaps" Are Actually Project Plans in Disguise</h3>
-          <p>The difference between shipping features and solving problems — and why it matters more than you think.</p>
-          <div class="blog-meta">Coming soon</div>
-        </a>
-        <a class="blog-card fade-up" href="#" style="transition-delay:.1s">
-          <span class="blog-tag">Localization</span>
-          <h3>The Hidden Bottleneck in Global Content: When Translation and Data Get Tangled</h3>
-          <p>Hard-won lessons from redesigning a localization architecture that served 130 locales.</p>
-          <div class="blog-meta">Coming soon</div>
-        </a>
-        <a class="blog-card fade-up" href="#" style="transition-delay:.2s">
-          <span class="blog-tag">Career</span>
-          <h3>The PM Without the Title: How to Build a Product Portfolio When Your Job Description Doesn't Say "Product"</h3>
-          <p>A practical guide for systems analysts and BSAs making the transition.</p>
-          <div class="blog-meta">Coming soon</div>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- CONTACT -->  
+  <!-- CONTACT -->
   <section id="contact">
     <div class="section-inner">
       <div class="contact-grid" style="grid-template-columns: 1fr; max-width: 560px;">
@@ -610,7 +696,7 @@
             <div class="section-label">Contact</div>
             <h2>Let's talk product.</h2>
           </div>
-          <p>Open to full-time Project and Product Manager opportunities in the Chicago area or remote.</p>
+          <p>Open to Product Manager, Project Manager, Program Manager, Solutions Specialist, and IT Business Analyst opportunities in the Chicago area or remote.</p>
           <div class="contact-links">
             <a href="mailto:austin.getchell@gmail.com" class="contact-link">
               <span class="contact-link-icon">✉️</span>
@@ -632,10 +718,8 @@
 
   <!-- FOOTER -->
   <footer>
-    <p><strong>Austin Getchell</strong> · Product Manager · Chicago Area &nbsp;·&nbsp; Built with intention.</p>
-	    <div>
-        <a href="/kidGames">Kid Games</a>
-    </div>
+    <p><strong>Austin Getchell</strong> · Product &amp; Program Leader · Chicago Area &nbsp;·&nbsp; Built with intention.</p>
+    <a href="/kidGames" class="footer-secret" tabindex="-1" aria-hidden="true">▲</a>
   </footer>
 
   <script>
@@ -651,17 +735,22 @@
 
     document.querySelectorAll('.fade-up, .timeline-item').forEach(el => observer.observe(el));
 
-    // Contact form (placeholder handler)
-    function handleSubmit(e) {
-      e.preventDefault();
-      const btn = e.target;
-      btn.textContent = 'Message Sent ✓';
-      btn.style.background = '#2d7a4f';
-      setTimeout(() => {
-        btn.textContent = 'Send Message →';
-        btn.style.background = '';
-      }, 3000);
-    }
+    // Mobile hamburger menu
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    hamburger.addEventListener('click', () => {
+      const isOpen = mobileMenu.classList.toggle('open');
+      hamburger.classList.toggle('open', isOpen);
+    });
+
+    // Close mobile menu when a link is tapped
+    document.querySelectorAll('.mobile-nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.remove('open');
+        hamburger.classList.remove('open');
+      });
+    });
   </script>
 </body>
 </html>
